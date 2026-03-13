@@ -1,0 +1,20 @@
+[
+  {
+    "text": "HTML का पूरा नाम क्या है?",
+    "options": [
+      { "text": "Hyper Text Markup Language", "isCorrect": true },
+      { "text": "High Text Machine Language", "isCorrect": false },
+      { "text": "Hyperlinks Text Mark Language", "isCorrect": false },
+      { "text": "None", "isCorrect": false }
+    ]
+  },
+  {
+    "text": "CSS का उपयोग किसके लिए होता है?",
+    "options": [
+      { "text": "Styling Web Pages", "isCorrect": true },
+      { "text": "Database Management", "isCorrect": false },
+      { "text": "Server Programming", "isCorrect": false },
+      { "text": "Operating System", "isCorrect": false }
+    ]
+  }
+]
