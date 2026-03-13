@@ -1,5 +1,6 @@
 import { db } from "@/db"
 import { questions, options } from "@/db/schema"
+import { revalidatePath } from "next/cache";
 
 export async function insertQuestionsDb(examId: string,
     data: {
@@ -31,6 +32,7 @@ export async function insertQuestionsDb(examId: string,
         uploadedQuestionCount++;
     }
 
+    revalidatePath("/", "layout")
     return uploadedQuestionCount
 
 }

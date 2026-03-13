@@ -27,6 +27,8 @@ export async function updateExamDb(id: string, data: Partial<typeof exams.$infer
     }
 
     revalidatePath("/admin/exams")
+    revalidatePath("/")
+    revalidatePath("/", "layout")
 }
 export async function insertExamDb(data: typeof exams.$inferInsert) {
     const [res] = await db.insert(exams)
@@ -38,4 +40,6 @@ export async function insertExamDb(data: typeof exams.$inferInsert) {
     }
 
     revalidatePath("/admin/exams")
+    revalidatePath("/")
+    revalidatePath("/", "layout")
 }

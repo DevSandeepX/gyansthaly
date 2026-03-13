@@ -16,6 +16,8 @@ export async function updateStudentDb(id: string, data: Partial<z.infer<typeof s
     }
 
     revalidatePath("/admin/students")
+    revalidatePath("/")
+    revalidatePath("/", "layout")
 }
 export async function insertStudentDb(data: z.infer<typeof studentSchema>) {
     const [res] = await db.insert(users)
@@ -27,6 +29,8 @@ export async function insertStudentDb(data: z.infer<typeof studentSchema>) {
     }
 
     revalidatePath("/admin/students")
+    revalidatePath("/")
+    revalidatePath("/", "layout")
 }
 
 export async function getUsers() {
