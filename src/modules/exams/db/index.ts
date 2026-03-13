@@ -30,6 +30,22 @@ export async function updateExamDb(id: string, data: Partial<typeof exams.$infer
     revalidatePath("/")
     revalidatePath("/", "layout")
 }
+export async function deleteExamDb(id: string) {
+    const [res] = await db.delete(exams)
+        .where(eq(exams.id, id))
+        .returning({ id: exams.id })
+
+    if (res == null) {
+        throw new Error("Something went wrong")
+    }
+
+    revalidatePath("/admin/exams")
+    revalidatePath("/")
+    revalidatePath("/", "layout")
+}
+
+
+
 export async function insertExamDb(data: typeof exams.$inferInsert) {
     const [res] = await db.insert(exams)
         .values(data)

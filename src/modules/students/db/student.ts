@@ -19,6 +19,21 @@ export async function updateStudentDb(id: string, data: Partial<z.infer<typeof s
     revalidatePath("/")
     revalidatePath("/", "layout")
 }
+
+export async function deleteUserDb(id: string) {
+    const [res] = await db.delete(users)
+        .where(eq(users.id, id))
+        .returning({ id: users.id })
+
+    if (res == null) {
+        throw new Error("Something went wrong")
+    }
+
+    revalidatePath("/admin/students")
+    revalidatePath("/")
+    revalidatePath("/", "layout")
+}
+
 export async function insertStudentDb(data: z.infer<typeof studentSchema>) {
     const [res] = await db.insert(users)
         .values(data)
@@ -32,6 +47,8 @@ export async function insertStudentDb(data: z.infer<typeof studentSchema>) {
     revalidatePath("/")
     revalidatePath("/", "layout")
 }
+
+
 
 export async function getUsers() {
     return db.query.users.findMany({

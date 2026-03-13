@@ -66,7 +66,7 @@ export default function ResultsPage({ exams }: { exams: Exam[] }) {
             {/* Exam Select */}
 
             <select
-                className="border p-2 rounded"
+                className="border p-2 rounded w-[380px]"
                 value={selectedExam ?? ""}
                 onChange={(e) => setSelectedExam(e.target.value)}
             >
@@ -79,73 +79,67 @@ export default function ResultsPage({ exams }: { exams: Exam[] }) {
 
             </select>
 
-            {/* Results Table */}
+            <div className="border rounded-lg overflow-hidden">
 
-            {loading ? (
-                <p>Loading...</p>
-            ) : (
+                <table className="w-full text-sm">
 
-                <div className="border rounded-lg overflow-hidden">
+                    <thead className="bg-gray-100">
+                        <tr>
+                            <th className="p-3 text-left">Student</th>
+                            <th className="p-3 text-left">Score</th>
+                            <th className="p-3 text-left">Total</th>
+                            <th className="p-3 text-left">Percentage</th>
+                            <th className="p-3 text-left">Result</th>
+                        </tr>
+                    </thead>
 
-                    <table className="w-full text-sm">
+                    <tbody>
 
-                        <thead className="bg-gray-100">
-                            <tr>
-                                <th className="p-3 text-left">Student</th>
-                                <th className="p-3 text-left">Score</th>
-                                <th className="p-3 text-left">Total</th>
-                                <th className="p-3 text-left">Percentage</th>
-                                <th className="p-3 text-left">Result</th>
-                            </tr>
-                        </thead>
+                        {results.map((r, i) => {
 
-                        <tbody>
+                            const percent = ((r.score / r.total) * 100).toFixed(2)
+                            const pass = Number(percent) >= 40
 
-                            {results.map((r, i) => {
+                            return (
+                                <tr key={i} className="border-t">
 
-                                const percent = ((r.score / r.total) * 100).toFixed(2)
-                                const pass = Number(percent) >= 40
+                                    <td className="p-3">
+                                        {r.name}
+                                    </td>
 
-                                return (
-                                    <tr key={i} className="border-t">
+                                    <td className="p-3">
+                                        {r.score}
+                                    </td>
 
-                                        <td className="p-3">
-                                            {r.name}
-                                        </td>
+                                    <td className="p-3">
+                                        {r.total}
+                                    </td>
 
-                                        <td className="p-3">
-                                            {r.score}
-                                        </td>
+                                    <td className="p-3">
+                                        {percent}%
+                                    </td>
 
-                                        <td className="p-3">
-                                            {r.total}
-                                        </td>
+                                    <td className="p-3">
 
-                                        <td className="p-3">
-                                            {percent}%
-                                        </td>
+                                        <span
+                                            className={`px-2 py-1 rounded text-white text-xs ${pass ? "bg-green-600" : "bg-red-600"
+                                                }`}
+                                        >
+                                            {pass ? "PASS" : "FAIL"}
+                                        </span>
 
-                                        <td className="p-3">
+                                    </td>
 
-                                            <span
-                                                className={`px-2 py-1 rounded text-white text-xs ${pass ? "bg-green-600" : "bg-red-600"
-                                                    }`}
-                                            >
-                                                {pass ? "PASS" : "FAIL"}
-                                            </span>
+                                </tr>
+                            )
+                        })}
 
-                                        </td>
+                    </tbody>
 
-                                    </tr>
-                                )
-                            })}
+                </table>
 
-                        </tbody>
+            </div>
 
-                    </table>
-
-                </div>
-            )}
 
         </div>
     )

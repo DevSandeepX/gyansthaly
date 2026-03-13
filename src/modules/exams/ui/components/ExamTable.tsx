@@ -13,9 +13,13 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import React from 'react'
+import React, { useState } from 'react'
 
 import { Button } from "@/components/ui/button"
+import ConfirmActionDialog from "@/components/ConfirmActionDialog"
+import { deleteExam } from "../../server"
+import { Modal } from "@/components/modal"
+import ExamForm from "./ExamForm"
 
 
 
@@ -28,13 +32,16 @@ interface Exam {
 
 }
 
-export default function examTable({
+export default function ExamTable({
     exams,
 
 }: {
     exams: Exam[]
 
 }) {
+
+    const [editOpen, setEditOpen] = useState(false)
+    const [selectedExam, setSelectedExam] = useState<{ id: string, name: string, duration: number, totalQuestions: number }>()
 
     return (
         <div className="rounded-lg border">
@@ -80,23 +87,43 @@ export default function examTable({
                                 <Button
                                     size="icon"
                                     variant="outline"
-
+                                    onClick={() => {
+                                        setSelectedExam(exam)
+                                        setEditOpen(true)
+                                    }}
                                 >
                                     <Pencil size={16} />
                                 </Button>
 
-                                <Button
-                                    size="icon"
-                                    variant="destructive"
-                                >
-                                    <Trash2 size={16} />
-                                </Button>
+                                <ConfirmActionDialog
+                                    action={() => deleteExam(exam.id)}
+                                    title="Are You Sure ?"
+                                    description="This exam deleted permanently from your db"
+                                    trigger={<Button
+                                        size="icon"
+                                        variant="destructive"
+                                    >
+                                        <Trash2 size={16} />
+                                    </Button>}
+                                />
 
                             </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
             </Table>
+
+            <Modal
+                open={editOpen}
+                onOpenChange={setEditOpen}
+                title="Edit Exam"
+                description="Update information"
+            >
+                <ExamForm
+                    exam={selectedExam}
+                />
+
+            </Modal>
         </div>
     )
 }

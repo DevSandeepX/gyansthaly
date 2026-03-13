@@ -12,6 +12,11 @@ import {
 } from "@/components/ui/table"
 
 import { Button } from "@/components/ui/button"
+import ConfirmActionDialog from "@/components/ConfirmActionDialog"
+import { deleteUser } from "../../server"
+import { useState } from "react"
+import { Modal } from "@/components/modal"
+import StudentForm from "./student-form"
 
 interface User {
     id: string
@@ -25,6 +30,9 @@ export default function UserTable({
     users: User[]
 
 }) {
+
+    const [selectedUser, setSelectedUser] = useState<{ id: string, rollNumber: string }>()
+    const [editOpen, setEditOpen] = useState(false)
 
     return (
         <div className="rounded-lg border">
@@ -62,23 +70,48 @@ export default function UserTable({
                                 <Button
                                     size="icon"
                                     variant="outline"
+                                    onClick={() => {
+                                        setSelectedUser(user)
+                                        setEditOpen(true)
+                                    }}
 
                                 >
                                     <Pencil size={16} />
                                 </Button>
 
-                                <Button
-                                    size="icon"
-                                    variant="destructive"
-                                >
-                                    <Trash2 size={16} />
-                                </Button>
+
+                                <ConfirmActionDialog
+                                    action={() => deleteUser(user.id)}
+                                    title="Delete User"
+                                    description="This will permanently delete the user"
+                                    trigger={
+                                        <Button
+                                            size="icon"
+                                            variant="destructive"
+                                        >
+                                            <Trash2 size={16} />
+                                        </Button>
+                                    }
+                                />
+
 
                             </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
             </Table>
+
+            <Modal
+                open={editOpen}
+                onOpenChange={setEditOpen}
+                title="Edit User"
+                description="Update information"
+            >
+                <StudentForm
+                    student={selectedUser}
+                />
+
+            </Modal>
         </div>
     )
 }

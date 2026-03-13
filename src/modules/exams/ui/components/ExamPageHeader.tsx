@@ -18,7 +18,7 @@ export default function ExamPageHeader() {
 
                 <Button
                     onClick={() => setOpen(true)}
-                >Add New Student</Button>
+                >Create Exam</Button>
             </div>
 
             <Modal
