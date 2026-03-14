@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { db } from "@/db"
+import { sql } from "drizzle-orm"
 
 export async function GET(req: Request) {
 
@@ -29,6 +30,7 @@ export async function GET(req: Request) {
             },
             where: (questions, { eq }) => eq(questions.examId, examId),
             limit,
+            orderBy: sql`RANDOM()`,
             offset
         })
 
