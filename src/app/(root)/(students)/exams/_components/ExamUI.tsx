@@ -1,5 +1,7 @@
 "use client"
 
+import { Button } from "@/components/ui/button"
+import { actionToast } from "@/lib/action-toast"
 import { useEffect, useState } from "react"
 
 interface Option {
@@ -28,6 +30,8 @@ export default function ExamUI({
     const [questions, setQuestions] = useState<Question[]>([])
     const [current, setCurrent] = useState(0)
     const [loading, setLoading] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
 
     // questionId -> optionId
     const [answers, setAnswers] = useState<Record<string, string>>({})
@@ -102,22 +106,36 @@ export default function ExamUI({
 
     const handleSubmit = async () => {
 
-        await fetch("/api/exam/submit", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                examId,
-                userId: studentId,
-                answers
-            })
-        })
+        const res = confirm("Are You sure ?. You want to finish exam.")
 
-        alert("Exam submitted")
+        if (res) {
 
-        window.location.href = "/results"
+            try {
+                setIsSubmitting(true)
+                const res = await fetch("/api/exam/submit", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        examId,
+                        userId: studentId,
+                        answers
+                    })
+                })
 
+                const data = await res.json()
+
+                if (data.success) {
+                    actionToast({ success: true, message: "Exam Submitted Successfully" })
+                    window.location.href = "/results"
+                } else {
+                    actionToast({ success: false, message: "Exam Already Submitted" })
+                }
+            } finally {
+                setIsSubmitting(false)
+            }
+        }
     }
 
     if (loading) {
@@ -189,26 +207,27 @@ export default function ExamUI({
 
             <div className="flex justify-between">
 
-                <button
+                <Button
                     onClick={prev}
                     className="bg-gray-400 text-white px-4 py-2 rounded"
                 >
                     Previous
-                </button>
+                </Button>
 
-                <button
+                <Button
                     onClick={next}
                     className="bg-blue-600 text-white px-4 py-2 rounded"
                 >
                     Next
-                </button>
+                </Button>
 
-                <button
+                <Button
                     onClick={handleSubmit}
+                    disabled={isSubmitting}
                     className="bg-green-600 text-white px-4 py-2 rounded"
                 >
-                    Submit
-                </button>
+                    {isSubmitting ? "Submitting..." : "Submit"}
+                </Button>
 
             </div>
 
@@ -218,7 +237,7 @@ export default function ExamUI({
 
                 {questions.map((q, i) => (
 
-                    <button
+                    <Button
                         key={q.id}
                         onClick={() => setCurrent(i)}
                         className={`p-2 rounded text-sm
@@ -228,7 +247,7 @@ export default function ExamUI({
             `}
                     >
                         {i + 1}
-                    </button>
+                    </Button>
 
                 ))}
 

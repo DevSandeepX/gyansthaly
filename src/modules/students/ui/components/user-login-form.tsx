@@ -65,7 +65,7 @@ export default function UserLoginForm({ exams }: UserLoginFormProps) {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <div className="p-6 bg-muted-foreground rounded-md">
 
             <form
                 onSubmit={handleSubmit}

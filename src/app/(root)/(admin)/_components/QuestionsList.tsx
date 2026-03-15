@@ -1,128 +1,64 @@
-"use client"
+import { Pagination } from "@/modules/students/ui/components/Pagination"
 
-import InfiniteScroll from "@/components/InfiniteScroll"
-import { QUESTIONS_LIMIT } from "@/settings"
-import { useEffect, useState, useCallback } from "react"
-
-interface Question {
-    id: string
-    text: string
-}
-
-interface Exam {
-    id: string
-    name: string
-}
-
-export default function QuestionsList() {
-
-    const [questions, setQuestions] = useState<Question[]>([])
-    const [exams, setExams] = useState<Exam[]>([])
-    const [selectedExam, setSelectedExam] = useState<string | null>(null)
-
-    const [page, setPage] = useState(1)
-    const [hasNextPage, setHasNextPage] = useState(true)
-    const [loading, setLoading] = useState(false)
-
-    // Fetch exams
-    async function fetchExams() {
-        try {
-            const res = await fetch("/api/exam")
-            const data = await res.json()
-
-            setExams(data)
-
-            if (data.length > 0) {
-                setSelectedExam(data[0].id)
-            }
-        } catch (err) {
-            console.log("Error fetching exams:", err)
-        }
-    }
-
-    // Load questions
-    const loadMore = useCallback(async () => {
-
-        if (!selectedExam || loading || !hasNextPage) return
-
-        try {
-            setLoading(true)
-
-            const res = await fetch(
-                `/api/questions?examId=${selectedExam}&page=${page}&limit=${QUESTIONS_LIMIT}`
-            )
-
-            const data = await res.json()
-
-            setQuestions((prev) => [...prev, ...data.questions])
-            setHasNextPage(data.hasNextPage)
-
-            setPage((prev) => prev + 1)
-
-        } catch (err) {
-            console.log("Error:", err)
-        } finally {
-            setLoading(false)
-        }
-
-    }, [selectedExam, page, hasNextPage, loading])
-
-    // Fetch exams on mount
-    useEffect(() => {
-        fetchExams()
-    }, [])
-
-    // Reset when exam changes
-    useEffect(() => {
-
-        if (!selectedExam) return
-
-        setQuestions([])
-        setPage(1)
-        setHasNextPage(true)
-
-    }, [selectedExam])
-
-    // Load first page after reset
-    useEffect(() => {
-
-        if (!selectedExam) return
-        loadMore()
-
-    }, [selectedExam])
+export function QuestionsList({
+    questions,
+    hasNextPage
+}: {
+    questions: { id: string, text: string }[],
+    hasNextPage: boolean
+}) {
 
     return (
-        <div className="space-y-6">
+        <div className="w-full space-y-6">
 
-            {/* Exam Dropdown */}
-            <select
-                value={selectedExam ?? ""}
-                onChange={(e) => setSelectedExam(e.target.value)}
-                className="border p-2 rounded"
-            >
-                {exams.map((exam) => (
-                    <option key={exam.id} value={exam.id}>
-                        {exam.name}
-                    </option>
-                ))}
-            </select>
+            <div className="bg-white border rounded-xl shadow-sm divide-y">
+                {questions.length ? (
+                    questions.map((q, i) => (
+                        <div
+                            key={q.id}
+                            className="flex items-start gap-4 p-5 hover:bg-gray-50 transition"
+                        >
+                            <div className="flex items-center justify-center w-8 h-8 text-sm font-semibold text-white bg-blue-600 rounded-full">
+                                {i + 1}
+                            </div>
 
-            {/* Questions */}
-            <div className="space-y-4">
-                {questions.map((q) => (
-                    <div key={q.id} className="p-3 border rounded">
-                        {q.text}
+                            <p className="text-gray-800 leading-relaxed">
+                                {q.text}
+                            </p>
+                        </div>
+                    ))
+                ) : (
+                    <div className="p-8 text-center text-gray-500">
+                        No Questions Found
+                    </div>
+                )}
+            </div>
+
+            <Pagination hasNextPage={hasNextPage} />
+
+        </div>
+    )
+}
+
+
+export function QuestionsListSkeleton() {
+    return (
+        <div className="w-full space-y-6">
+
+            <div className="bg-white border rounded-xl shadow-sm divide-y">
+                {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="flex items-start gap-4 p-5 animate-pulse">
+
+                        <div className="w-8 h-8 rounded-full bg-gray-200" />
+
+                        <div className="flex-1 space-y-2">
+                            <div className="h-4 bg-gray-200 rounded w-3/4" />
+                            <div className="h-4 bg-gray-200 rounded w-1/2" />
+                        </div>
+
                     </div>
                 ))}
             </div>
-
-            {/* Infinite Scroll */}
-            <InfiniteScroll
-                hasNextPage={hasNextPage}
-                loadMore={loadMore}
-                loading={loading}
-                isManual={true}
-            />
 
         </div>
     )

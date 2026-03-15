@@ -1,4 +1,4 @@
-import { pgTable, varchar, text, uuid, timestamp, integer, jsonb, boolean } from "drizzle-orm/pg-core"
+import { pgTable, varchar, text, uuid, timestamp, integer, jsonb, boolean, uniqueIndex } from "drizzle-orm/pg-core"
 import { relations } from "drizzle-orm"
 
 
@@ -43,7 +43,7 @@ export const userExam = pgTable("user_exam", {
 
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updateddAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull().$onUpdate(() => new Date()),
-})
+}, (t) => [uniqueIndex("user_exam_unique").on(t.examId, t.userId)])
 
 export const userExamRelations = relations(userExam, ({ one }) => ({
     user: one(users, {

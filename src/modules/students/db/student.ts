@@ -50,8 +50,19 @@ export async function insertStudentDb(data: z.infer<typeof studentSchema>) {
 
 
 
-export async function getUsers() {
-    return db.query.users.findMany({
-        columns: { id: true, rollNumber: true }
+export async function getUsers({ search, page, limit }: { search: string, page: number, limit: number }) {
+    const offset = (page - 1) * limit
+    const users = await db.query.users.findMany({
+        where: (users, { ilike }) =>
+            search ? ilike(users.rollNumber, `%${search}%`) : undefined,
+        offset,
+        limit
     })
+
+    const hasNextPage = users.length === limit
+
+    return {
+        users,
+        hasNextPage
+    }
 }

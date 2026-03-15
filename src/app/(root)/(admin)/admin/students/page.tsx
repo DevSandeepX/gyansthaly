@@ -3,14 +3,21 @@ import UserPageHeader from "@/modules/students/ui/components/UserPageHeader"
 
 import { getUsers } from "@/modules/students/db/student"
 import UserTable from "@/modules/students/ui/components/UserTable"
+import { Pagination } from "@/modules/students/ui/components/Pagination"
+import { USERS_LIMIT } from "@/settings"
+import { TableSkeleton } from "@/components/skeleton/TableSkeleton"
 
-export default function StudentsPage() {
+export default async function StudentsPage({ searchParams }: {
+    searchParams: Promise<{ search: string, page: string }>
+}) {
+
+    const { search, page } = await searchParams
     return (
         <div className="space-y-6">
             <UserPageHeader />
 
-            <Suspense fallback={<UserTableSkeleton />}>
-                <SuspendedUserTable />
+            <Suspense fallback={<TableSkeleton rows={5} cols={3} />}>
+                <SuspendedUserTable search={search} page={page} />
             </Suspense>
         </div>
     )
@@ -18,25 +25,17 @@ export default function StudentsPage() {
 
 
 
-async function SuspendedUserTable() {
+async function SuspendedUserTable({ search, page }: {
+    search: string,
+    page: string
+}) {
 
-    const users = await getUsers()
+    const { users, hasNextPage } = await getUsers({ search, page: Number(page), limit: USERS_LIMIT })
 
     return (
-        <UserTable users={users} />
-    )
-}
-
-
-function UserTableSkeleton() {
-    return (
-        <div className="space-y-3">
-            {Array.from({ length: 5 }).map((_, i) => (
-                <div
-                    key={i}
-                    className="h-12 w-full rounded-lg bg-gray-200 animate-pulse"
-                />
-            ))}
-        </div>
+        <>
+            <UserTable users={users} />
+            <Pagination hasNextPage={hasNextPage} />
+        </>
     )
 }

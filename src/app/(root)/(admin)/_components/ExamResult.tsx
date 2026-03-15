@@ -1,146 +1,114 @@
 "use client"
 
-import { useEffect, useState } from "react"
-
-interface Exam {
-    id: string
-    name: string
-}
+import { Pagination } from "@/modules/students/ui/components/Pagination"
 
 interface Result {
-    name: string
-    score: number
-    total: number
+    rollNumber: string
+    exam: string
+    grade: string,
+    totalQuestions: number
+    percentage: number
+    result: string
+    correct: number
 }
 
-export default function ResultsPage({ exams }: { exams: Exam[] }) {
-
-    const [selectedExam, setSelectedExam] = useState<string | null>(null)
-    const [results, setResults] = useState<Result[]>([])
-    const [loading, setLoading] = useState(false)
-
-    // default first exam
-    useEffect(() => {
-        if (exams.length > 0) {
-            setSelectedExam(exams[0].id)
-        }
-    }, [exams])
-
-    // fetch results
-    useEffect(() => {
-        if (!selectedExam) return
-        fetchResults(selectedExam)
-    }, [selectedExam])
-
-    const fetchResults = async (examId: string) => {
-
-        setLoading(true)
-
-        const res = await fetch("/api/exam/results", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ examId })
-        })
-
-        const data = await res.json()
-        console.log(data)
-
-        if (data.success) {
-            setResults(data.results)
-        }
-
-        setLoading(false)
-    }
-
-
-
+export default function ResultsPage({ results, hasNextPage }: { results: Result[], hasNextPage: boolean }) {
     return (
-        <div className="p-6 space-y-6">
+        <>
 
-            <h1 className="text-2xl font-bold">
-                Exam Results
-            </h1>
+            <div className="py-6">
+                <div className="bg-white shadow-md rounded-xl border overflow-hidden">
 
-            {/* Exam Select */}
+                    <div className="px-6 py-4 border-b bg-gray-50">
+                        <h2 className="text-xl font-semibold text-gray-800">
+                            Exam Results
+                        </h2>
+                        <p className="text-sm text-gray-500">
+                            Students performance summary
+                        </p>
+                    </div>
 
-            <select
-                className="border p-2 rounded w-[380px]"
-                value={selectedExam ?? ""}
-                onChange={(e) => setSelectedExam(e.target.value)}
-            >
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
 
-                {exams.map((exam) => (
-                    <option key={exam.id} value={exam.id}>
-                        {exam.name}
-                    </option>
-                ))}
-
-            </select>
-
-            <div className="border rounded-lg overflow-hidden">
-
-                <table className="w-full text-sm">
-
-                    <thead className="bg-gray-100">
-                        <tr>
-                            <th className="p-3 text-left">Student</th>
-                            <th className="p-3 text-left">Score</th>
-                            <th className="p-3 text-left">Total</th>
-                            <th className="p-3 text-left">Percentage</th>
-                            <th className="p-3 text-left">Result</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                        {results.map((r, i) => {
-
-                            const percent = ((r.score / r.total) * 100).toFixed(2)
-                            const pass = Number(percent) >= 40
-
-                            return (
-                                <tr key={i} className="border-t">
-
-                                    <td className="p-3">
-                                        {r.name}
-                                    </td>
-
-                                    <td className="p-3">
-                                        {r.score}
-                                    </td>
-
-                                    <td className="p-3">
-                                        {r.total}
-                                    </td>
-
-                                    <td className="p-3">
-                                        {percent}%
-                                    </td>
-
-                                    <td className="p-3">
-
-                                        <span
-                                            className={`px-2 py-1 rounded text-white text-xs ${pass ? "bg-green-600" : "bg-red-600"
-                                                }`}
-                                        >
-                                            {pass ? "PASS" : "FAIL"}
-                                        </span>
-
-                                    </td>
-
+                            <thead className="bg-gray-100 text-gray-700">
+                                <tr>
+                                    <th className="p-4 text-left font-semibold">Roll No / Name</th>
+                                    <th className="p-4 text-left font-semibold">Exam</th>
+                                    <th className="p-4 text-center font-semibold">Correct</th>
+                                    <th className="p-4 text-center font-semibold">Total</th>
+                                    <th className="p-4 text-center font-semibold">Percentage</th>
+                                    <th className="p-4 text-center font-semibold">Grade</th>
+                                    <th className="p-4 text-center font-semibold">Result</th>
                                 </tr>
-                            )
-                        })}
+                            </thead>
 
-                    </tbody>
+                            <tbody className="divide-y">
 
-                </table>
+                                {results.map((r, i) => {
 
+                                    const pass = r.result === "PASS"
+
+                                    return (
+                                        <tr
+                                            key={i}
+                                            className="hover:bg-gray-50 transition"
+                                        >
+
+                                            <td className="p-4 font-medium text-gray-800">
+                                                {r.rollNumber}
+                                            </td>
+
+                                            <td className="p-4 text-gray-600">
+                                                {r.exam}
+                                            </td>
+
+                                            <td className="p-4 text-center font-medium">
+                                                {r.correct}
+                                            </td>
+
+                                            <td className="p-4 text-center text-gray-600">
+                                                {r.totalQuestions}
+                                            </td>
+
+                                            <td className="p-4 text-center">
+                                                <span className="font-semibold text-blue-600">
+                                                    {r.percentage.toFixed(2)}%
+                                                </span>
+                                            </td>
+                                            <td className="p-4 text-center">
+                                                <span className="font-semibold text-blue-600">
+                                                    {r.grade}
+                                                </span>
+                                            </td>
+
+                                            <td className="p-4 text-center">
+
+                                                <span
+                                                    className={`px-3 py-1 text-xs font-semibold rounded-full
+                        ${pass
+                                                            ? "bg-green-100 text-green-700"
+                                                            : "bg-red-100 text-red-700"
+                                                        }`}
+                                                >
+                                                    {r.result}
+                                                </span>
+
+                                            </td>
+
+                                        </tr>
+                                    )
+                                })}
+
+                            </tbody>
+
+                        </table>
+                    </div>
+
+                </div>
             </div>
+            <Pagination hasNextPage={hasNextPage} />
 
-
-        </div>
+        </>
     )
 }
