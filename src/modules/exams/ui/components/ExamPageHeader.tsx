@@ -12,8 +12,8 @@ export default function ExamPageHeader() {
 
             <div className='flex items-end justify-between mb-6'>
                 <Heading
-                    title='Manage All students'
-                    description='Manage All student for your Exam system .'
+                    title='Manage Exams students'
+                    description='Manage All Exams for your Exam system .'
                 />
 
                 <Button
@@ -24,7 +24,8 @@ export default function ExamPageHeader() {
             <Modal
                 open={open}
                 onOpenChange={setOpen}
-                title='New Student'
+                title='New Exam'
+                description='Fill Information to create a new exam'
             >
                 <ExamForm />
             </Modal>
