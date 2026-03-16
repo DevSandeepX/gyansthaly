@@ -3,114 +3,101 @@
 import { actionToast } from "@/lib/action-toast"
 import { useState } from "react"
 import { createQuestionsBulk } from "../../server"
+import { Button } from "@/components/ui/button"
+import { useJsonUpload } from "@/hooks/use-json-upload"
 
-interface QuestionFileUploaderProps {
-    exams: {
-        duration: number
-        id: string
-        name: string
-        totalQuestions: number
-    }[]
+
+interface Question {
+    text: string,
+    options: { text: string, isCorrect: boolean }[]
 }
 
-export default function QuestionFileUploader({ exams }: QuestionFileUploaderProps) {
 
-    const [selectedExam, setSelectedExam] = useState<string>("")
-    const [file, setFile] = useState<File | null>(null)
-    const [questions, setQuestions] = useState<any[]>([])
+export default function QuestionFileUploader({ examId }: { examId: string }) {
+
+    const { data, error, handleFile } = useJsonUpload<Question[]>()
+
     const [loading, setLoading] = useState(false)
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedFile = e.target.files?.[0]
-
-        if (!selectedFile) return
-
-        setFile(selectedFile)
-
-        const reader = new FileReader()
-
-        reader.onload = (event) => {
-            try {
-                const json = JSON.parse(event.target?.result as string)
-                setQuestions(json)
-            } catch (error) {
-                alert("Invalid JSON file")
-            }
-        }
-
-        reader.readAsText(selectedFile)
-    }
+    const [file, setFile] = useState<File | null>(null)
 
     const handleUpload = async () => {
+
+        if (!examId) {
+            actionToast({
+                success: false,
+                message: "Exam not selected"
+            })
+            return
+        }
+
+        if (!data || data.length === 0) {
+            actionToast({
+                success: false,
+                message: "No questions found"
+            })
+            return
+        }
+
         setLoading(true)
-        if (!selectedExam) {
-            alert("Please select exam")
-            return
+
+        try {
+
+            const res = await createQuestionsBulk(examId, data)
+
+            actionToast({ ...res })
+
+        } finally {
+            setLoading(false)
         }
-
-        if (questions.length === 0) {
-            alert("No questions found")
-            return
-        }
-
-        console.log("Exam ID:", selectedExam)
-        console.log("Questions:", questions)
-
-        // TODO: call server action / API
-        const res = await createQuestionsBulk(selectedExam, questions)
-        setLoading(false)
-        actionToast({ ...res })
     }
 
     return (
-        <div className="max-w-lg p-6 border rounded-lg space-y-4">
+        <div className="max-w-lg p-6 border rounded-lg space-y-4 bg-white">
 
             <h2 className="text-xl font-semibold">
                 Upload Questions JSON
             </h2>
 
-            {/* Exam Dropdown */}
-            <div>
-                <label className="block mb-1">Select Exam</label>
-                <select
-                    className="w-full border p-2 rounded"
-                    value={selectedExam}
-                    onChange={(e) => setSelectedExam(e.target.value)}
-                >
-                    <option value="">Select Exam</option>
+            {/* Upload */}
+            <div className="space-y-2">
+                <label className="text-sm font-medium">
+                    Upload JSON File
+                </label>
 
-                    {exams.map((exam) => (
-                        <option key={exam.id} value={exam.id}>
-                            {exam.name} ({exam.totalQuestions} questions)
-                        </option>
-                    ))}
-                </select>
-            </div>
-
-            {/* File Upload */}
-            <div>
-                <label className="block mb-1">Upload JSON File</label>
                 <input
                     type="file"
                     accept=".json"
-                    onChange={handleFileChange}
-                    className="w-full"
+                    onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                            handleFile(file)
+                            setFile(file)
+                        }
+                    }}
+                    className="w-full border rounded p-2"
                 />
             </div>
 
+            {/* Error */}
+            {error && (
+                <p className="text-red-500 text-sm">
+                    {error}
+                </p>
+            )}
+
             {/* Upload Button */}
-            <button
+            <Button
                 onClick={handleUpload}
-                disabled={loading}
-                className="bg-blue-600 text-white px-4 py-2 rounded"
+                disabled={loading || !file || !examId}
+                className="w-full"
             >
-                Upload Questions
-            </button>
+                {loading ? "Uploading..." : "Upload Questions"}
+            </Button>
 
             {/* Preview */}
-            {questions.length > 0 && (
+            {data && (
                 <div className="text-sm bg-gray-100 p-3 rounded">
-                    <p>Questions Loaded: {questions.length}</p>
+                    Questions Loaded: {data.length}
                 </div>
             )}
 

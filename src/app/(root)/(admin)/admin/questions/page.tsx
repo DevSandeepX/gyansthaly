@@ -1,21 +1,30 @@
 import { db } from "@/db";
 import { exams, questions } from "@/db/schema";
-import { ExamDropdown } from "@/modules/exams/ui/components/ExamDropdown";
+import { ExamDropdown, QuestionFileUploaderSkeleton } from "@/modules/exams/ui/components/ExamDropdown";
 import { QUESTIONS_LIMIT } from "@/settings";
 import { eq } from "drizzle-orm";
 import { Suspense } from "react";
 import { QuestionsList, QuestionsListSkeleton } from "../../_components/QuestionsList";
+import QuestionFileUploader from "@/modules/questions/ui/components/QuestionFileUploader";
 
 export default async function Questions({ searchParams }: {
     searchParams: Promise<{ page: string, examId: string, search: string }>
 }) {
 
     const { examId, page, search } = await searchParams
+
     return (
         <div className="space-y-6">
-            <Suspense fallback={<DropdownSkeleton />}>
-                <SuspendedExamDropdown />
-            </Suspense>
+            <div className="flex justify-between">
+                <Suspense fallback={<DropdownSkeleton />}>
+                    <SuspendedExamDropdown />
+                </Suspense>
+                <Suspense fallback={<QuestionFileUploaderSkeleton />}>
+                    <SuspendedQuestionFileUploader
+                        examId={examId}
+                    />
+                </Suspense>
+            </div>
             <Suspense fallback={<QuestionsListSkeleton />}>
                 <SuspendedQuestions
                     examId={examId}
@@ -28,6 +37,16 @@ export default async function Questions({ searchParams }: {
     )
 }
 
+
+async function SuspendedQuestionFileUploader({ examId }: {
+    examId: string
+}) {
+    const exams = await db.query.exams.findMany()
+
+    return (
+        <QuestionFileUploader examId={examId} />
+    )
+}
 
 async function SuspendedQuestions({ examId, search, page }: {
     examId: string,
@@ -42,8 +61,6 @@ async function SuspendedQuestions({ examId, search, page }: {
         />
     )
 }
-
-
 
 async function getExamQuestions({ examId, search, page }: {
     examId: string,
