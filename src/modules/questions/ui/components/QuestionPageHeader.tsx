@@ -6,16 +6,11 @@ import { useState } from 'react'
 import QuestionFileUploader from './QuestionFileUploader'
 
 interface QuestionPageHeaderProps {
-    exams: {
-        duration: number;
-        id: string;
-        name: string;
-        totalQuestions: number;
-    }[]
+    examId:string
 }
 
 export default function QuestionPageHeader({
-    exams
+    examId
 }: QuestionPageHeaderProps) {
     const [open, setOpen] = useState(false)
     return (
@@ -38,7 +33,7 @@ export default function QuestionPageHeader({
                 title='New Student'
             >
                 <QuestionFileUploader
-                    exams={exams}
+                    examId={examId}
                 />
             </Modal>
         </>

@@ -9,7 +9,7 @@ export default async function SuspendedExamTable() {
         // TODO:Add table skeleton
         <>
             <ExamPageHeader
-                exams={exams}
+                examId={exams[0].id}
             />
             <ExamTable
                 exams={exams} />

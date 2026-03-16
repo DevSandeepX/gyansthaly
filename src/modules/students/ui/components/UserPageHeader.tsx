@@ -7,10 +7,13 @@ import { Button } from '@/components/ui/button'
 import { Modal } from '@/components/modal'
 import StudentForm from './student-form'
 import SearchForm from '@/components/SearchForm'
+import StudentBulkUploader from './StudentBulkUploader'
 
 export default function UserPageHeader() {
 
-    const [open, setOpen] = useState(false)
+    const [formOpen, setFormOpen] = useState(false)
+    const [bulkOpen, setBulkOpen] = useState(false)
+
     return (
         <>
 
@@ -22,16 +25,28 @@ export default function UserPageHeader() {
                 <SearchForm />
 
                 <Button
-                    onClick={() => setOpen(true)}
+                    onClick={() => setFormOpen(true)}
                 >Add New Student</Button>
+                <Button
+                    onClick={() => setBulkOpen(true)}
+                >Add Student Bulk</Button>
             </div>
 
             <Modal
-                open={open}
-                onOpenChange={setOpen}
+                open={formOpen}
+                onOpenChange={setFormOpen}
                 title='New Student'
             >
                 <StudentForm />
+            </Modal>
+            <Modal
+                open={bulkOpen}
+                onOpenChange={setBulkOpen}
+                title='Upload Students'
+            >
+                <StudentBulkUploader 
+                setBulkOpen={setBulkOpen}
+                />
             </Modal>
 
 

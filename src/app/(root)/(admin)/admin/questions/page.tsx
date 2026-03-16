@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { exams, questions } from "@/db/schema";
+import { questions } from "@/db/schema";
 import { ExamDropdown, QuestionFileUploaderSkeleton } from "@/modules/exams/ui/components/ExamDropdown";
 import { QUESTIONS_LIMIT } from "@/settings";
 import { eq } from "drizzle-orm";

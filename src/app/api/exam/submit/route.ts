@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { db } from "@/db"
 import { userExam } from "@/db/schema"
+import { insertUserAttemptDb } from "@/modules/exams/db"
 
 export async function POST(req: Request) {
 
@@ -17,16 +18,12 @@ export async function POST(req: Request) {
             })
         }
 
-        const result = await db.insert(userExam).values({
-            userId,
-            examId,
-            answers
-        }).returning()
+        const result = await insertUserAttemptDb({userId,examId,answers})
 
         return NextResponse.json({
             success: true,
             message: "Exam submitted successfully",
-            data: result[0]
+            data: result
         })
 
     } catch (error) {

@@ -48,6 +48,24 @@ export async function insertStudentDb(data: z.infer<typeof studentSchema>) {
     revalidatePath("/", "layout")
 }
 
+export async function insertStudentsInBulkDb(data: z.infer<typeof studentSchema>[]) {
+    const res = await db.insert(users)
+        .values(data)
+        .returning({ id: users.id })
+
+    if (res == null) {
+        throw new Error("Something went wrong")
+    }
+
+
+
+    revalidatePath("/admin/students")
+    revalidatePath("/")
+    revalidatePath("/", "layout")
+
+    return res.length
+}
+
 
 
 export async function getUsers({ search, page, limit }: { search: string, page: number, limit: number }) {

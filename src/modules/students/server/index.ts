@@ -1,7 +1,7 @@
 "use server"
 import z from "zod";
 import { studentSchema } from "../schema";
-import { deleteUserDb, insertStudentDb, updateStudentDb } from "../db/student";
+import { deleteUserDb, insertStudentDb, insertStudentsInBulkDb, updateStudentDb } from "../db/student";
 
 export async function updateStudent(id: string, unsafeData: z.infer<typeof studentSchema>) {
     const { success, data } = studentSchema.safeParse(unsafeData)
@@ -37,5 +37,21 @@ export async function deleteUser(id: string) {
     } catch (err) {
         console.log("Error: ", err)
         return { success: false, message: "Failed to delete user" }
+    }
+}
+
+
+export async function uploadStudentsInBulk(users: { rollNumber: string }[]) {
+    if (!users.length) {
+        return { success: false, message: "Empty data recived" }
+    }
+
+    try {
+        const studentsCount = await insertStudentsInBulkDb(users)
+        return { success: true, message: `${studentsCount} Students saved into database` }
+    } catch (err) {
+        console.log("Error : ", err)
+        return { success: false, message: "Something went wrong" }
+
     }
 }
